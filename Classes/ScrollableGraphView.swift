@@ -222,6 +222,12 @@ import UIKit
     @IBInspectable open var dataPointLabelColor: UIColor = UIColor.black
     /// The colour for the data point labels.
     open var dataPointLabelFont: UIFont? = UIFont.systemFont(ofSize: 10)
+  
+    ///
+    open var topPointLabelColor: UIColor = UIColor.black
+    open var topPointLabelFont: UIFont? = UIFont.systemFont(ofSize: 10)
+  
+  
     /// Used to force the graph to show every n-th dataPoint label
     @IBInspectable open var dataPointLabelsSparsity: Int = 1
   
@@ -230,6 +236,7 @@ import UIKit
     
     // Graph Data for Display
     private var data = [Double]()
+    private var dataLabels = [Double:String]()
     private var labels = [String]()
     
     private var isInitialSetup = true
@@ -311,7 +318,9 @@ import UIKit
     open override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
         
-        set(data: [10, 2, 34, 11, 22, 11, 44, 9, 12, 4], withLabels: ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"])
+        set(data: [10, 2, 34, 11, 22, 11, 44, 9, 12, 4],
+            withDataLabels: [10:"10", 2:"2", 34:"34", 11:"11",22:"22", 11:"11", 44:"44", 9:"9", 12:"12", 4:"4" ],
+            withLabels: ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"])
     }
     
     private func setup() {
@@ -410,6 +419,9 @@ import UIKit
         
         // Set the first active points interval. These are the points that are visible when the view loads.
         self.activePointsInterval = initialActivePointsInterval
+      
+      
+      
     }
     
     // Makes sure everything is in a clean state for when we want to reset the data for a graph.
@@ -605,7 +617,7 @@ import UIKit
     // MARK: - Public Methods
     // ######################
     
-    open func set(data: [Double], withLabels labels: [String]) {
+  open func set(data: [Double], withDataLabels dataLabels: [Double:String], withLabels labels: [String]) {
         
         // If we are setting exactly the same data and labels, there's no need to re-init everything.
         if(self.data == data && self.labels == labels) {
@@ -615,6 +627,7 @@ import UIKit
         self.dataNeedsReloading = true
         self.data = data
         self.labels = labels
+        self.dataLabels = dataLabels
         
         if(!isInitialSetup) {
             updateUI()
@@ -1006,9 +1019,16 @@ import UIKit
             
             label.sizeToFit()
             
-            topLabel.text = (point < data.count) ? String(data[point]) : ""
-            topLabel.textColor = dataPointLabelColor
-            topLabel.font = dataPointLabelFont
+            //topLabel.text = (point < data.count) ? String(data[point]) : ""
+          
+        
+            if point < data.count {
+              topLabel.text = dataLabels[data[point]]
+            } else {
+              topLabel.text = ""
+            }
+            topLabel.textColor = topPointLabelColor
+            topLabel.font = topPointLabelFont
             topLabelAssociations[topLabel] = point
             
             topLabel.sizeToFit()
